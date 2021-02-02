@@ -5,7 +5,7 @@ import sys
 from ChassisScripts import chassisProject  # noqa: F401
 from ChassisScripts import chassis  # noqa: F401
 from ChassisScripts import frontSuspension  # noqa: F401
-from ChassisScripts import chassisTubing  # noqa: F401
+from ChassisScripts import chassisTubingGui  # noqa: F401
 
 class ChassisWorkbench (Workbench): 
     MenuText = 'Chassis'
