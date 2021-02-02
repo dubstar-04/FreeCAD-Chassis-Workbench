@@ -6,11 +6,10 @@ from PySide import QtGui
 import FreeCADGui, FreeCAD
 import Part
 import os
-import chassisProject
+from ChassisScripts import chassisProject
 
 __dir__ = os.path.dirname(__file__)
-
-
+iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
     
 class Chassis:
     def __init__(self, obj):
@@ -94,7 +93,7 @@ class chassisCommand:
         
     def GetResources(self): 
         return {
-            'Pixmap' : os.path.join( __dir__ , 'importPart.svg' ) , 
+            'Pixmap' : os.path.join( iconPath , 'importPart.svg' ) , 
             'MenuText': 'Create a new chassis', 
             'ToolTip': 'Create a new chassis'
             }    

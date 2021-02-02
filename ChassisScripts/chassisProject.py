@@ -1,26 +1,20 @@
 '''
-Creates a new front suspension
+Creates a new chassis
 '''
 
 from PySide import QtGui
 import FreeCADGui, FreeCAD
 import Part
 import os
-import chassisProject
 
 __dir__ = os.path.dirname(__file__)
-
-
-class frontSuspension:
+iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
+  
+class ChassisProject:
     def __init__(self, obj):
         "'''Add some custom properties to our box feature'''"
-        obj.addProperty("App::PropertyVector","LFHP","Suspension","Hardpoint").LFHP=(1.0, 1.0, 1.0)
-        obj.addProperty("App::PropertyVector","LRHP","Suspension","Hardpoint").LRHP=(1.0, 1.0, 1.0)
-        obj.addProperty("App::PropertyVector","UFHP","Suspension","Hardpoint").UFHP=(1.0, 1.0, 1.0)
-        obj.addProperty("App::PropertyVector","URHP","Suspension","Hardpoint").URHP=(1.0, 1.0, 1.0)
         obj.Proxy = self
         self.Object = obj        
-
 
     def onChanged(self, fp, prop):
         "'''Do something when a property has changed'''"
@@ -28,8 +22,21 @@ class frontSuspension:
  
     def execute(self, fp):
         "'''Do something when doing a recomputation, this method is mandatory'''"
-        FreeCAD.Console.PrintMessage("Recompute Chassis feature\n")    
-             
+        
+    def addObject(self,child):
+        if hasattr(self,"Object"):
+            g = self.Object.Group
+            if not child in g:
+                g.append(child)
+                self.Object.Group = g
+
+    def removeObject(self,child):
+        if hasattr(self,"Object"):
+            g = self.Object.Group
+            if child in g:
+                g.remove(child)
+                self.Object.Group = g
+        
     def getIcon(self):
         #"'''Return the icon in XPM format which will appear in the tree view. This method is\'''
         #        '''optional and if not defined a default icon is shown.'''"
@@ -61,23 +68,18 @@ class frontSuspension:
             "   #######      "};
             '''
 
-class frontSuspensionCommand:
+class NewChassisCommand:
     def Activated(self):
         doc = FreeCAD.activeDocument()
-        obj_front = doc.addObject("App::FeaturePython","Front Suspension")   
-        frontSuspension(obj_front)
-        for o in FreeCAD.ActiveDocument.Objects:
-             if "Proxy" in o.PropertiesList:
-                if isinstance(o.Proxy, chassisProject.ChassisProject):
-                    FreeCAD.Console.PrintMessage("Add Suspension to Chassis\n")
-                    o.addObject(obj_front)
-                    
+        obj_chassis_project = doc.addObject("App::DocumentObjectGroupPython","Chassis Project")
+        ChassisProject(obj_chassis_project)
+        
     def GetResources(self): 
         return {
-            'Pixmap' : os.path.join( __dir__ , 'importPart.svg' ) , 
-            'MenuText': 'Create a front suspension', 
-            'ToolTip': 'Create a front suspension'
+            'Pixmap' : os.path.join( iconPath , 'importPart.svg' ) , 
+            'MenuText': 'Create a new chassis project', 
+            'ToolTip': 'Create a new chassis project'
             }    
             
-FreeCADGui.addCommand('frontSuspension', frontSuspensionCommand())
+FreeCADGui.addCommand('chassisProject', NewChassisCommand())
 

@@ -1,23 +1,29 @@
+import os
+import sys
+
+# import all turning operations
+from ChassisScripts import chassisProject  # noqa: F401
+from ChassisScripts import chassis  # noqa: F401
+from ChassisScripts import frontSuspension  # noqa: F401
+from ChassisScripts import chassisTubing  # noqa: F401
 
 class ChassisWorkbench (Workbench): 
     MenuText = 'Chassis'
     def Initialize(self):
-        #from assembly2lib import __dir__
-        import chassisProject, chassis, frontSuspension
+        
         commandslist = [
             'chassisProject',
             'chassis',
-            'frontSuspension'
+            'frontSuspension',
+            'chassisTubing'
             ]
         self.appendToolbar('Chassis', commandslist)
         self.treecmdList = ['chassisProject', 'frontSuspension']
         self.appendMenu('Chassis', commandslist)
 
     def Activated(self):
-        #from assembly2lib import FreeCAD, updateOldStyleConstraintProperties
-        doc = FreeCAD.activeDocument()
-        #if hasattr(doc, 'Objects'):
-        #    updateOldStyleConstraintProperties(doc)
+        FreeCAD.Console.PrintMessage("Loading Chassis Workbench")
+
 
     # Icon generated using by converting svg to xpm format using Gimp
     Icon = '''
