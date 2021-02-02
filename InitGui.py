@@ -1,29 +1,30 @@
-import os
-import sys
+import FreeCAD
+import FreeCADGui
 
-# import all turning operations
 from ChassisScripts import chassisProject  # noqa: F401
 from ChassisScripts import chassis  # noqa: F401
 from ChassisScripts import frontSuspension  # noqa: F401
 from ChassisScripts import chassisTubingGui  # noqa: F401
 
-class ChassisWorkbench (Workbench): 
+
+class ChassisWorkbench (Workbench):  # noqa: F821
     MenuText = 'Chassis'
+
     def Initialize(self):
-        
+
         commandslist = [
             'chassisProject',
             'chassis',
             'frontSuspension',
             'chassisTubing'
-            ]
+        ]
+
         self.appendToolbar('Chassis', commandslist)
         self.treecmdList = ['chassisProject', 'frontSuspension']
         self.appendMenu('Chassis', commandslist)
 
     def Activated(self):
         FreeCAD.Console.PrintMessage("Loading Chassis Workbench")
-
 
     # Icon generated using by converting svg to xpm format using Gimp
     Icon = '''
@@ -92,4 +93,4 @@ static char * workBenchIcon_xpm[] = {
 '''
 
 
-Gui.addWorkbench(ChassisWorkbench())
+FreeCADGui.addWorkbench(ChassisWorkbench())

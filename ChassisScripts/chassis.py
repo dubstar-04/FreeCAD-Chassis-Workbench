@@ -1,52 +1,51 @@
-'''
-Creates a new chassis
-'''
-
-from PySide import QtGui
-import FreeCADGui, FreeCAD
-import Part
 import os
+
+import FreeCAD
+import FreeCADGui
+import Part
+
 from ChassisScripts import chassisProject
 
 __dir__ = os.path.dirname(__file__)
 iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
-    
+
+
 class Chassis:
     def __init__(self, obj):
         "'''Add some custom properties to our box feature'''"
-        obj.addProperty("App::PropertyLength","Wheelbase","Chassis","Wheelbase of the vehicle").Wheelbase=1.0
-        obj.addProperty("App::PropertyLength","FrontTrack","Chassis","Front Track of the vehicle").FrontTrack=1.0
-        obj.addProperty("App::PropertyLength","RearTrack","Chassis", "Rear Track of the vehicle").RearTrack=1.0
-        obj.addProperty("App::PropertyVector","COG","Chassis","Center of Gravity").COG=(1.0, 1.0, 1.0)
+        obj.addProperty("App::PropertyLength", "Wheelbase", "Chassis", "Wheelbase of the vehicle").Wheelbase = 1.0
+        obj.addProperty("App::PropertyLength", "FrontTrack", "Chassis", "Front Track of the vehicle").FrontTrack = 1.0
+        obj.addProperty("App::PropertyLength", "RearTrack", "Chassis", "Rear Track of the vehicle").RearTrack = 1.0
+        obj.addProperty("App::PropertyVector", "COG", "Chassis", "Center of Gravity").COG = (1.0, 1.0, 1.0)
+        obj.addExtension("App::GroupExtensionPython", self)
         obj.Proxy = self
-        self.Object = obj        
+        self.Object = obj
 
     def onChanged(self, fp, prop):
         "'''Do something when a property has changed'''"
         FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
- 
+
     def execute(self, fp):
         "'''Do something when doing a recomputation, this method is mandatory'''"
         FreeCAD.Console.PrintMessage("Recompute Chassis feature\n")
-        fp.Shape = Part.makeSphere(10,fp.COG)
-        
-    def addObject(self,child):
-        if hasattr(self,"Object"):
+        fp.Shape = Part.makeSphere(10, fp.COG)
+
+    def addObject(self, child):
+        if hasattr(self, "Object"):
             g = self.Object.Group
-            if not child in g:
+            if child not in g:
                 g.append(child)
                 self.Object.Group = g
 
-    def removeObject(self,child):
-        if hasattr(self,"Object"):
+    def removeObject(self, child):
+        if hasattr(self, "Object"):
             g = self.Object.Group
             if child in g:
                 g.remove(child)
                 self.Object.Group = g
-        
+
     def getIcon(self):
-        #"'''Return the icon in XPM format which will appear in the tree view. This method is\'''
-        #        '''optional and if not defined a default icon is shown.'''"
+
         return '''
             /* XPM */
             static const char * ViewProviderBox_xpm[] = {
@@ -75,28 +74,28 @@ class Chassis:
             "   #######      "};
             '''
 
+
 class chassisCommand:
     def Activated(self):
         doc = FreeCAD.activeDocument()
-        obj_chassis = doc.addObject("Part::FeaturePython","Chassis")     
+        obj_chassis = doc.addObject("Part::FeaturePython", "Chassis")
         Chassis(obj_chassis)
-        obj_chassis.ViewObject.Proxy=0
-        
+        obj_chassis.ViewObject.Proxy = 0
+
         for o in FreeCAD.ActiveDocument.Objects:
             if "Proxy" in o.PropertiesList:
                 if isinstance(o.Proxy, chassisProject.ChassisProject):
                     FreeCAD.Console.PrintMessage("Add Suspension to Chassis\n")
                     o.addObject(obj_chassis)
-        
+
         FreeCAD.ActiveDocument.recompute()
 
-        
-    def GetResources(self): 
+    def GetResources(self):
         return {
-            'Pixmap' : os.path.join( iconPath , 'importPart.svg' ) , 
-            'MenuText': 'Create a new chassis', 
+            'Pixmap': os.path.join(iconPath, 'importPart.svg'),
+            'MenuText': 'Create a new chassis',
             'ToolTip': 'Create a new chassis'
-            }    
-            
-FreeCADGui.addCommand('chassis', chassisCommand())
+        }
 
+
+FreeCADGui.addCommand('chassis', chassisCommand())

@@ -1,15 +1,7 @@
-import math
 import os
-
-from PySide import QtGui, QtCore
-from PySide.QtGui import QApplication, QDialog, QMainWindow, QPushButton
 
 import FreeCAD
 import FreeCADGui
-import Draft
-import DraftVecUtils
-import Part
-import Sketcher
 
 import ChassisScripts.chassisTubing as chassisTubing
 
@@ -20,21 +12,21 @@ uiPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Panels')
 iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
 path_to_ui = os.path.join(uiPath, ui_name)
 
+
 class TubingPanel:
     def __init__(self):
         # self will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(path_to_ui)
 
-       # Load UI Components
+        # Load UI Components
         self.sectionsComboBox = self.form.sectionsComboBox
         self.createPB = self.form.createPB
 
         self.tubing = chassisTubing.ChassisTubing()
         self.setupUI()
 
-        #connect
+        # connect
         self.createPB.clicked.connect(self._createTube)
-
 
     def _createTube(self):
         """ call the createTube function"""
@@ -69,8 +61,10 @@ class chassisTubingCommand:
 
     def GetResources(self):
         return {
-            'Pixmap' : os.path.join( iconPath, 'importPart.svg' ),
+            'Pixmap': os.path.join(iconPath, 'importPart.svg'),
             'MenuText': 'Create chassis tubing',
             'ToolTip': 'Create chassis tubing'
-            }     
+        }
+
+
 FreeCADGui.addCommand('chassisTubing', chassisTubingCommand())

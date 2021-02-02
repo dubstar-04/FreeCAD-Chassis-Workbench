@@ -16,7 +16,7 @@ class ChassisTubing:
         documentGroupList = FreeCAD.ActiveDocument.findObjects('App::DocumentObjectGroup')
 
         if not any(group.Label == "Sections" for group in documentGroupList):
-            FreeCAD.Console.PrintWarning("Tubing_Macro: Sections not found, Creating them now\n")      
+            FreeCAD.Console.PrintWarning("Tubing_Macro: Sections not found, Creating them now\n")
             self.createSectionGroup()
 
         group = FreeCAD.ActiveDocument.getObject('Sections')
@@ -73,11 +73,10 @@ class ChassisTubing:
         for size in sizes:
             self.create_circular_tube(group, size)
             self.create_square_tube(group, size)
-        
-        # hide the group so the sections don't show in the 3d view 
+
+        # hide the group so the sections don't show in the 3d view
         group.Visibility = False
         FreeCAD.ActiveDocument.recompute()
-
 
     def createTube(self, section_idx):
         """ create a tube using the selected section and path """
@@ -88,13 +87,13 @@ class ChassisTubing:
             FreeCAD.Console.PrintWarning("Tubing_Macro: Nothing selected\n")
             return
 
-        selpath = sel[0]    
+        selpath = sel[0]
         # make a copy of the selected path
         path = selpath.Object
         # get a list of edges to convert to tube
         edges = selpath.SubElementNames
         print("Selected:", path.Label, " with edges ", edges)
-        
+
         # get the startpoint of the edge
         edge = selpath.SubObjects[0]
         vertex = edge.Vertexes[0]
@@ -128,11 +127,11 @@ class ChassisTubing:
         r = vector.cross(n)
         # calculate the rotation angle in degrees
         a = DraftVecUtils.angle(n, vector, r) * 180 / math.pi
-        Draft.rotate(section, 0-a, axis=r)
+        Draft.rotate(section, 0 - a, axis=r)
         # move the section to the start of the tube
         section.Placement.Base = vertex.Point
         # create new tube
-        tube =chassis.newObject('PartDesign::AdditivePipe', 'Tube')
+        tube = chassis.newObject('PartDesign::AdditivePipe', 'Tube')
         tube.Profile = section
         tube.Spine = (path, edges)
         tube.Transition = 'Transformed'
