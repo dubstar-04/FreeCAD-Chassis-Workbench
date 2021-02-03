@@ -1,7 +1,6 @@
 import FreeCAD
 import FreeCADGui
 
-from ChassisScripts import chassisProject  # noqa: F401
 from ChassisScripts import chassis  # noqa: F401
 from ChassisScripts import frontSuspension  # noqa: F401
 from ChassisScripts import chassisTubingGui  # noqa: F401
@@ -13,14 +12,13 @@ class ChassisWorkbench (Workbench):  # noqa: F821
     def Initialize(self):
 
         commandslist = [
-            'chassisProject',
             'chassis',
             'frontSuspension',
             'chassisTubing'
         ]
 
         self.appendToolbar('Chassis', commandslist)
-        self.treecmdList = ['chassisProject', 'frontSuspension']
+        self.treecmdList = ['chassis', 'frontSuspension']
         self.appendMenu('Chassis', commandslist)
 
     def Activated(self):

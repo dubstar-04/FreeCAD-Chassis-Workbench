@@ -1,10 +1,9 @@
 import os
 
+from PySide import QtCore, QtGui
+
 import FreeCAD
 import FreeCADGui
-import Part
-
-from ChassisScripts import chassisProject
 
 __dir__ = os.path.dirname(__file__)
 iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
@@ -12,24 +11,33 @@ iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
 
 class Chassis:
     def __init__(self, obj):
-        "'''Add some custom properties to our box feature'''"
-        obj.addProperty("App::PropertyLength", "Wheelbase", "Chassis", "Wheelbase of the vehicle").Wheelbase = 1.0
-        obj.addProperty("App::PropertyLength", "FrontTrack", "Chassis", "Front Track of the vehicle").FrontTrack = 1.0
-        obj.addProperty("App::PropertyLength", "RearTrack", "Chassis", "Rear Track of the vehicle").RearTrack = 1.0
+        '''Add some custom properties to our box feature'''
+        obj.addProperty("App::PropertyLength", "Wheelbase", "Chassis", "Wheelbase of the vehicle").Wheelbase = 1500.0
+        obj.addProperty("App::PropertyLength", "FrontTrack", "Chassis", "Front Track of the vehicle").FrontTrack = 1100.0
+        obj.addProperty("App::PropertyLength", "RearTrack", "Chassis", "Rear Track of the vehicle").RearTrack = 1200.0
         obj.addProperty("App::PropertyVector", "COG", "Chassis", "Center of Gravity").COG = (1.0, 1.0, 1.0)
-        obj.addExtension("App::GroupExtensionPython", self)
+        obj.setEditorMode("COG", 1)  # Read only
         obj.Proxy = self
         self.Object = obj
 
     def onChanged(self, fp, prop):
-        "'''Do something when a property has changed'''"
+        '''Do something when a property has changed'''
         FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
+        for item in fp.Group:
+            item.recompute()
 
     def execute(self, fp):
-        "'''Do something when doing a recomputation, this method is mandatory'''"
+        '''Do something when doing a recomputation, this method is mandatory'''
         FreeCAD.Console.PrintMessage("Recompute Chassis feature\n")
-        fp.Shape = Part.makeSphere(10, fp.COG)
+        # fp.Shape = Part.makeSphere(10, fp.COG)
 
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self, state):
+        return None
+
+    '''
     def addObject(self, child):
         if hasattr(self, "Object"):
             g = self.Object.Group
@@ -43,6 +51,7 @@ class Chassis:
             if child in g:
                 g.remove(child)
                 self.Object.Group = g
+    '''
 
     def getIcon(self):
 
@@ -75,20 +84,50 @@ class Chassis:
             '''
 
 
+class ViewProviderChassis:
+    def __init__(self, obj):
+        """
+        Set this object to the proxy object of the actual view provider
+        """
+        obj.Proxy = self
+
+    def attach(self, obj):
+        """
+        Setup the scene sub-graph of the view provider, this method is mandatory
+        """
+        return
+
+    def setEdit(self, vobj, mode=0):
+        # pylint: disable=unused-argument
+        FreeCAD.Console.PrintMessage("Chassis: View Object - SetEdit")
+        return False
+
+    def unsetEdit(self, vobj, mode=0):
+        # pylint: disable=unused-argument
+        return False
+
+    def getIcon(self):
+        return os.path.join(iconPath, 'importPart.svg')
+
+    def setupContextMenu(self, vobj, menu):
+        action_edit = QtGui.QAction(QtGui.QIcon(os.path.join(iconPath, 'importPart.svg')), "Edit Chassis", menu)
+        QtCore.QObject.connect(action_edit, QtCore.SIGNAL("triggered()"), print("Edit Chassis Triggered"))
+        menu.addAction(action_edit)
+
+
 class chassisCommand:
     def Activated(self):
         doc = FreeCAD.activeDocument()
-        obj_chassis = doc.addObject("Part::FeaturePython", "Chassis")
+
+        if not doc:
+            FreeCAD.Console.PrintMessage("No active document")
+            return
+
+        obj_chassis = doc.addObject('App::DocumentObjectGroupPython', 'Chassis')
         Chassis(obj_chassis)
-        obj_chassis.ViewObject.Proxy = 0
-
-        for o in FreeCAD.ActiveDocument.Objects:
-            if "Proxy" in o.PropertiesList:
-                if isinstance(o.Proxy, chassisProject.ChassisProject):
-                    FreeCAD.Console.PrintMessage("Add Suspension to Chassis\n")
-                    o.addObject(obj_chassis)
-
+        ViewProviderChassis(obj_chassis.ViewObject)
         FreeCAD.ActiveDocument.recompute()
+        return obj_chassis
 
     def GetResources(self):
         return {
