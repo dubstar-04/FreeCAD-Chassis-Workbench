@@ -12,21 +12,17 @@ iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
 
 class frontSuspension:
     def __init__(self, obj):
-        "'''Add some custom properties to our box feature'''"
-        obj.addProperty("App::PropertyVector", "LFHP", "Suspension", "Hardpoint").LFHP = (-10.0, 100.0, 1.0)
-        obj.addProperty("App::PropertyVector", "LRHP", "Suspension", "Hardpoint").LRHP = (-10.0, 100.0, 1.0)
-        obj.addProperty("App::PropertyVector", "UFHP", "Suspension", "Hardpoint").UFHP = (10.0, 100.0, 1.0)
-        obj.addProperty("App::PropertyVector", "URHP", "Suspension", "Hardpoint").URHP = (10.0, 100.0, 1.0)
-        obj.Proxy = self
-        self.Object = obj
+        """
+        Keys:
+        U = UPPER
+        L = LOWER
+        F = FRONT
+        R = REAR
+        HP = HARD POINT
+        Ur = Upright
 
-    def onChanged(self, fp, prop):
-        "'''Do something when a property has changed'''"
-        FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
-
-    def execute(self, fp):
-        "'''Do something when doing a recomputation, this method is mandatory'''"
-        FreeCAD.Console.PrintMessage("Recompute Front suspension feature\n")
+        UFHP = UPPER FRONT HARD POINT
+        """
 
         chassis = FreeCAD.ActiveDocument.getObject('Chassis')
 
@@ -34,44 +30,74 @@ class frontSuspension:
             FreeCAD.Console.PrintMessage("No Chassis Object\n")
             return
 
+        # chassis hardpoints
+        obj.addProperty("App::PropertyVector", "LFHP", "Suspension", "Hardpoint").LFHP = (300, 1775, 100)
+        obj.addProperty("App::PropertyVector", "LRHP", "Suspension", "Hardpoint").LRHP = (300, 1525, 100)
+        obj.addProperty("App::PropertyVector", "UFHP", "Suspension", "Hardpoint").UFHP = (300, 1750, 400)
+        obj.addProperty("App::PropertyVector", "URHP", "Suspension", "Hardpoint").URHP = (300, 1550, 400)
+        # upright hardpoints
+        obj.addProperty("App::PropertyVector", "UrLHP", "Suspension", "Hardpoint").UrLHP = (600, 1650, 100)
+        obj.addProperty("App::PropertyVector", "UrUHP", "Suspension", "Hardpoint").UrUHP = (600, 1650, 400)
+
+        # roll centre
+        obj.addProperty("App::PropertyVector", "RollCentre", "Suspension", "Hardpoint")
+        obj.RollCentre = (0.0, 0.0, 0.0)
+        obj.setEditorMode("RollCentre", 1)  # Read only
+
+        obj.Proxy = self
+        self.Object = obj
+
+    def onChanged(self, fp, prop):
+        "'''Do something when a property has changed'''"
+        return
+
+    def execute(self, fp):
+        "'''Do something when doing a recomputation, this method is mandatory'''"
+        FreeCAD.Console.PrintMessage("Recompute Front suspension feature\n")
+        self.draw(fp)
+
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self, state):
+        return None
+
+    def draw(self, fp):
+
         geom = []
 
-        FreeCAD.Console.PrintMessage("CHASSIS FRONT TRACK: {}".format(chassis.Wheelbase))
+        # frontLeftWheel = FreeCAD.Vector(-chassis.FrontTrack / 2, chassis.Wheelbase, 0)
+        # frontRightWheel = FreeCAD.Vector(chassis.FrontTrack / 2, chassis.Wheelbase, 0)
+        # geom.append(Part.Edge(Part.LineSegment(frontLeftWheel, frontRightWheel)))
 
-        frontLeftWheel = FreeCAD.Vector(-chassis.FrontTrack / 2, chassis.Wheelbase, 0)
-        frontRightWheel = FreeCAD.Vector(chassis.FrontTrack / 2, chassis.Wheelbase, 0)
-        geom.append(Part.Edge(Part.LineSegment(frontLeftWheel, frontRightWheel)))
+        # upper wishbones
+        # right
+        geom.append(Part.Edge(Part.LineSegment(fp.UFHP, fp.UrUHP)))
+        geom.append(Part.Edge(Part.LineSegment(fp.URHP, fp.UrUHP)))
+        # left
+        LeftUFHP = FreeCAD.Vector(-fp.UFHP.x, fp.UFHP.y, fp.UFHP.z)
+        LeftURHP = FreeCAD.Vector(-fp.URHP.x, fp.URHP.y, fp.URHP.z)
+        LeftUrUHP = FreeCAD.Vector(-fp.UrUHP.x, fp.UrUHP.y, fp.UrUHP.z)
+        geom.append(Part.Edge(Part.LineSegment(LeftUFHP, LeftUrUHP)))
+        geom.append(Part.Edge(Part.LineSegment(LeftURHP, LeftUrUHP)))
 
-        fp.Shape = Part.Wire(geom)
+        # lower wishbone
+        # right
+        geom.append(Part.Edge(Part.LineSegment(fp.LFHP, fp.UrLHP)))
+        geom.append(Part.Edge(Part.LineSegment(fp.LRHP, fp.UrLHP)))
+        # left
+        LeftLFHP = FreeCAD.Vector(-fp.LFHP.x, fp.LFHP.y, fp.LFHP.z)
+        LeftLRHP = FreeCAD.Vector(-fp.LRHP.x, fp.LRHP.y, fp.LRHP.z)
+        LeftUrLHP = FreeCAD.Vector(-fp.UrLHP.x, fp.UrLHP.y, fp.UrLHP.z)
+        geom.append(Part.Edge(Part.LineSegment(LeftLFHP, LeftUrLHP)))
+        geom.append(Part.Edge(Part.LineSegment(LeftLRHP, LeftUrLHP)))
 
-    def getIcon(self):
-        return '''
-            /* XPM */
-            static const char * ViewProviderBox_xpm[] = {
-            "16 16 6 1",
-            "   c None",
-            ".  c #141010",
-            "+  c #615BD2",
-            "@  c #C39D55",
-            "#  c #000000",
-            "$  c #57C355",
-            "        ........",
-            "   ......++..+..",
-            "   .@@@@.++..++.",
-            "   .@@@@.++..++.",
-            "   .@@  .++++++.",
-            "  ..@@  .++..++.",
-            "###@@@@ .++..++.",
-            "##$.@@$#.++++++.",
-            "#$#$.$$$........",
-            "#$$#######      ",
-            "#$$#$$$$$#      ",
-            "#$$#$$$$$#      ",
-            "#$$#$$$$$#      ",
-            " #$#$$$$$#      ",
-            "  ##$$$$$#      ",
-            "   #######      "};
-            '''
+        # uprights
+        geom.append(Part.Edge(Part.LineSegment(fp.UrLHP, fp.UrUHP)))
+        geom.append(Part.Edge(Part.LineSegment(LeftUrLHP, LeftUrUHP)))
+
+        resPart = Part.Compound(geom)
+        fp.Shape = resPart
 
 
 class ViewProviderFrontSuspension:

@@ -12,9 +12,9 @@ iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
 class Chassis:
     def __init__(self, obj):
         '''Add some custom properties to our box feature'''
-        obj.addProperty("App::PropertyLength", "Wheelbase", "Chassis", "Wheelbase of the vehicle").Wheelbase = 1500.0
-        obj.addProperty("App::PropertyLength", "FrontTrack", "Chassis", "Front Track of the vehicle").FrontTrack = 1100.0
-        obj.addProperty("App::PropertyLength", "RearTrack", "Chassis", "Rear Track of the vehicle").RearTrack = 1200.0
+        obj.addProperty("App::PropertyLength", "Wheelbase", "Chassis", "Wheelbase of the vehicle").Wheelbase = 1650.0
+        obj.addProperty("App::PropertyLength", "FrontTrack", "Chassis", "Front Track of the vehicle").FrontTrack = 1200.0
+        obj.addProperty("App::PropertyLength", "RearTrack", "Chassis", "Rear Track of the vehicle").RearTrack = 1400.0
         obj.addProperty("App::PropertyVector", "COG", "Chassis", "Center of Gravity").COG = (1.0, 1.0, 1.0)
         obj.setEditorMode("COG", 1)  # Read only
         obj.Proxy = self
@@ -22,7 +22,7 @@ class Chassis:
 
     def onChanged(self, fp, prop):
         '''Do something when a property has changed'''
-        FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
+        FreeCAD.Console.PrintMessage("Chassis Change property: " + str(prop) + "\n")
         for item in fp.Group:
             item.recompute()
 
