@@ -1,12 +1,10 @@
 import os
-import math
 
 from PySide import QtCore, QtGui
 
 import FreeCAD
 import FreeCADGui
 import Part
-import DraftVecUtils
 
 __dir__ = os.path.dirname(__file__)
 iconPath = os.path.join(os.path.dirname(__dir__), 'Gui' + os.sep + 'Icons')
@@ -57,6 +55,16 @@ class frontSuspension:
         "'''Do something when doing a recomputation, this method is mandatory'''"
         FreeCAD.Console.PrintMessage("Recompute Front suspension feature\n")
 
+        self.draw(fp, self.getHardpoints(fp))
+
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self, state):
+        return None
+
+    def getHardpoints(self, fp):
+
         hardpoints = {
             "LFHP": fp.LFHP,
             "LRHP": fp.LRHP,
@@ -66,13 +74,7 @@ class frontSuspension:
             "UrUHP": fp.UrUHP
         }
 
-        self.draw(fp, hardpoints)
-
-    def __getstate__(self):
-        return None
-
-    def __setstate__(self, state):
-        return None
+        return hardpoints
 
     def draw(self, fp, hp):
 
@@ -108,73 +110,8 @@ class frontSuspension:
         geom.append(Part.Edge(Part.LineSegment(hp["UrLHP"], hp["UrUHP"])))
         geom.append(Part.Edge(Part.LineSegment(LeftUrLHP, LeftUrUHP)))
 
-        ani = animateSuspension()
-        ani.start(hp)
-
         resPart = Part.Compound(geom)
         fp.Shape = resPart
-
-
-class animateSuspension:
-    def __init__(self):
-
-        self.timer = QtCore.QTimer()
-        self.iterations = 0
-        self.angle = 0
-        self.increment = 0.1
-        self.upperlimit = 5
-        self.lowerLimit = -2
-        self.hardpoints = {}
-
-        QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.animate)
-
-    def start(self, hp):
-
-        print("starting animation")
-
-        self.hardpoints = hp
-        self.timer.start(10)
-        """
-        try:
-            #self.timer.timeout.connect(self.animate)
-            print("start timer")
-            self.timer.start(10)
-        except:
-            print("animation failed")
-            self.timer.stop()
-        """
-
-    def animate(self):
-
-        self.angle += self.increment
-
-        print("angle:", self.angle)
-
-        print("rotated vector:", self.rotateVector(self.hp["UrUHP"], self.hp["UFHP"], self.hp["URHP"], self.angle))
-
-        if self.angle > self.upperlimit or self.angle < self.lowerLimit:
-            self.increment = 0 - self.increment
-            self.iterations += 1
-
-        if self.iterations > 4:
-            self.timer.stop()
-
-    def rotateVector(self, vec, axisVecStart, axisVecEnd, angle):
-        """
-        rotate vector: vec
-        about axis defined by: axisVecStart and axisVecEnd
-        by angle in degrees: angle
-        """
-
-        if angle == 0:
-            return vec
-
-        u = vec.sub(axisVecStart)
-        angle = math.radians(5)
-        axis = axisVecEnd.sub(axisVecStart)
-        v = DraftVecUtils.rotate(u, angle, axis).add(axisVecStart)
-
-        return v
 
 
 class ViewProviderFrontSuspension:
@@ -219,6 +156,7 @@ class frontSuspensionCommand:
             return
 
         obj_front = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", "Front Suspension")
+        # obj_front.Label2 = 'Suspension System'
         frontSuspension(obj_front)
         ViewProviderFrontSuspension(obj_front.ViewObject)
         chassis.addObject(obj_front)
