@@ -34,11 +34,11 @@ class frontSuspension:
         # chassis hardpoints
         obj.addProperty("App::PropertyVector", "LFHP", "Suspension", "Hardpoint").LFHP = (300, 1775, 100)
         obj.addProperty("App::PropertyVector", "LRHP", "Suspension", "Hardpoint").LRHP = (300, 1525, 100)
-        obj.addProperty("App::PropertyVector", "UFHP", "Suspension", "Hardpoint").UFHP = (300, 1750, 400)
-        obj.addProperty("App::PropertyVector", "URHP", "Suspension", "Hardpoint").URHP = (300, 1550, 400)
+        obj.addProperty("App::PropertyVector", "UFHP", "Suspension", "Hardpoint").UFHP = (350, 1750, 400)
+        obj.addProperty("App::PropertyVector", "URHP", "Suspension", "Hardpoint").URHP = (350, 1550, 400)
         # upright hardpoints
         obj.addProperty("App::PropertyVector", "UrLHP", "Suspension", "Hardpoint").UrLHP = (600, 1650, 100)
-        obj.addProperty("App::PropertyVector", "UrUHP", "Suspension", "Hardpoint").UrUHP = (600, 1650, 400)
+        obj.addProperty("App::PropertyVector", "UrUHP", "Suspension", "Hardpoint").UrUHP = (590, 1675, 400)
 
         # roll centre
         obj.addProperty("App::PropertyVector", "RollCentre", "Suspension", "Hardpoint")
@@ -123,8 +123,15 @@ class frontSuspension:
 
         resPart = Part.Compound(geom)
 
-        fp.CastorAngle = math.degrees(hp["UrUHP"].sub(hp["UrLHP"]).normalize().getAngle(FreeCAD.Vector(0, 1, 0)))
-        fp.CamberAngle = math.degrees(hp["UrUHP"].sub(hp["UrLHP"]).normalize().getAngle(FreeCAD.Vector(0, 0, 1)))
+        dX = hp["UrLHP"].x - hp["UrUHP"].x
+        dY = hp["UrLHP"].y - hp["UrUHP"].y
+        dZ = hp["UrLHP"].z - hp["UrUHP"].z
+
+        fp.CastorAngle = math.degrees(math.tanh(dY / dZ))
+        fp.CamberAngle = math.degrees(math.tanh(dX / dZ))
+
+        # fp.CastorAngle = math.degrees(hp["UrUHP"].sub(hp["UrLHP"]).normalize().getAngle(FreeCAD.Vector(0, 1, 0)))
+        # fp.CamberAngle = math.degrees(hp["UrUHP"].sub(hp["UrLHP"]).normalize().getAngle(FreeCAD.Vector(0, 0, 1)))
 
         fp.Shape = resPart
 
