@@ -43,6 +43,11 @@ class AnalysePanel:
 
     def stopAnalysis(self):
         self.timer.stop()
+        # reset the animation state
+        systemName = self.systemsComboBox.currentText()
+        system = FreeCAD.ActiveDocument.getObject(systemName)
+        hp = system.Proxy.getHardpoints(system)
+        system.Proxy.draw(system, hp)
 
     def startAnalysis(self):
         """ call the createTube function"""
@@ -66,6 +71,7 @@ class AnalysePanel:
         self.quit()
 
     def quit(self):
+        self.stopAnalysis()
         FreeCADGui.Control.closeDialog()
 
     def setupUI(self):
