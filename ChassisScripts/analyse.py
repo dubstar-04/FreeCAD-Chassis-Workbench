@@ -34,6 +34,7 @@ class AnimateSuspension:
         self.angle += self.increment
         print("angle:", self.angle, "increment:", self.increment)
         # get upright upper hardpoint after rotation
+
         UrUHP = self.rotateVector(self.hp["UrUHP"], self.hp["UFHP"], self.hp["URHP"], self.increment)
         UrLHP = self.rotateVector(self.hp["UrLHP"], self.hp["LFHP"], self.hp["LRHP"], self.increment)
 
@@ -50,6 +51,9 @@ class AnimateSuspension:
         """
 
         self.system.Proxy.draw(self.system, self.hp)
+
+        print("Castor Angle:", self.system.CastorAngle)
+        print("Camber Angle:", self.system.CamberAngle)
 
     def rotateVector(self, vec, axisVecStart, axisVecEnd, angle):
         """
