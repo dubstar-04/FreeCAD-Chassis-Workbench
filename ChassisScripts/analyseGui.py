@@ -1,5 +1,7 @@
 import os
 
+from PySide import QtCore
+
 import FreeCAD
 import FreeCADGui
 
@@ -21,13 +23,28 @@ class AnalysePanel:
         # Load UI Components
         self.systemsComboBox = self.form.systemsComboBox
         self.analysePB = self.form.analysePB
+        self.stopPB = self.form.stopPB
+
+        # Create analysis objects
+        self.analysis = analyse.AnimateSuspension()
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(100)
 
         self.setupUI()
 
         # connect
-        self.analysePB.clicked.connect(self.runAnalysis)
+        self.analysePB.clicked.connect(self.startAnalysis)
+        self.stopPB.clicked.connect(self.stopAnalysis)
+        self.timer.timeout.connect(self.iterate)
 
-    def runAnalysis(self):
+    def iterate(self):
+        FreeCAD.Console.PrintMessage("Timeout\n")
+        self.analysis.animate()
+
+    def stopAnalysis(self):
+        self.timer.stop()
+
+    def startAnalysis(self):
         """ call the createTube function"""
         FreeCAD.Console.PrintMessage("Start Analysis\n")
 
@@ -37,8 +54,9 @@ class AnalysePanel:
             return
 
         system = FreeCAD.ActiveDocument.getObject(systemName)
-        ani = analyse.AnimateSuspension()
-        ani.start(system)
+        self.analysis.setSystem(system)
+
+        self.timer.start()
 
     def reject(self):
         FreeCAD.Console.PrintMessage("Reject Signal\n")

@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>566</width>
-    <height>759</height>
+    <width>221</width>
+    <height>238</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Chassis Tubing</string>
+   <string>Analyse</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -21,6 +21,16 @@
     <widget class="QPushButton" name="analysePB">
      <property name="text">
       <string>Analyse</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="stopPB">
+     <property name="text">
+      <string>Stop</string>
      </property>
      <property name="flat">
       <bool>false</bool>
