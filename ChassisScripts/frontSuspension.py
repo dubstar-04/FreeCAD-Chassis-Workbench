@@ -1,4 +1,5 @@
 import os
+import math
 
 from PySide import QtCore, QtGui
 
@@ -43,6 +44,16 @@ class frontSuspension:
         obj.addProperty("App::PropertyVector", "RollCentre", "Suspension", "Hardpoint")
         obj.RollCentre = (0.0, 0.0, 0.0)
         obj.setEditorMode("RollCentre", 1)  # Read only
+
+        # Castor
+        obj.addProperty("App::PropertyAngle", "CastorAngle", "Suspension", "Hardpoint")
+        obj.CastorAngle = 0.0
+        obj.setEditorMode("CastorAngle", 1)  # Read only
+
+        # camber
+        obj.addProperty("App::PropertyAngle", "CamberAngle", "Suspension", "Hardpoint")
+        obj.CamberAngle = 0.0
+        obj.setEditorMode("CamberAngle", 1)  # Read only
 
         obj.Proxy = self
         self.Object = obj
@@ -111,6 +122,10 @@ class frontSuspension:
         geom.append(Part.Edge(Part.LineSegment(LeftUrLHP, LeftUrUHP)))
 
         resPart = Part.Compound(geom)
+
+        fp.CastorAngle = math.degrees(hp["UrUHP"].sub(hp["UrLHP"]).normalize().getAngle(FreeCAD.Vector(0, 1, 0)))
+        fp.CamberAngle = math.degrees(hp["UrUHP"].sub(hp["UrLHP"]).normalize().getAngle(FreeCAD.Vector(0, 0, 1)))
+
         fp.Shape = resPart
 
 
